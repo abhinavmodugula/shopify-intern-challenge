@@ -1,0 +1,113 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="jumbotron">
+    <br>
+    <h1 class="display-4">Items in Your Inventory</h1>
+    <a href="{{url_for('main_bp.create_item')}}" class="btn btn-info" role="button">Add New Item</a>
+    <br>
+    <br>
+    {% for message in get_flashed_messages() %}
+      <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+      </div>
+    {% endfor %}
+    <div class="form-inline">
+        <form action="{{url_for('main_bp.create_warehouse')}}" method="POST">
+          <input type="text" class="form-control" id="name"  name="name" required>
+          <button type="submit" class="btn btn-success">Add Warehouse</button>
+        </form>
+        <button class="btn btn-outline-danger dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Delete Warehouse
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% for house in warehouses %}
+            <a class="dropdown-item" href="{{url_for('main_bp.delete_cat', warehouse_id=house.id)}}">{{house.name}}</a>
+            {% endfor %}
+          </div>
+    </div>
+</div>
+
+
+<ul class="nav nav-tabs">
+  <li class="nav-item"> <a class="nav-link active" href="#">All&nbsp;</a> </li>
+  {% for house in warehouses %}
+      <li class="nav-item"> <a class="nav-link" href="{{url_for('main_bp.items_by_warehouse', warehouse_id=house.id)}}">{{house.name}}</a> </li>
+  {% endfor %}
+
+  <div class="btn-toolbar" role="toolbar">
+
+   <div class="btn-group mr-2" role="group"></div>
+  </div>
+</ul>
+<div class="btn-toolbar" role="toolbar"> </div>
+
+<!-- Start of the User's log contents -->
+<div class="card text-left border-dark mb-3">
+{% for item in items|reverse %}
+
+  <div class="card-header position-sticky justify-content-between">
+      <div class="float-right">
+      <small>Category: {{item.warehouse.name}}</small> <br>
+      <small class="text-muted">Created {{ item.date_created.strftime("%m/%d/%Y") }}</small>
+      </div>
+
+      <h5 class="mb-1">{{ item.name }}</h5>
+
+      <p class="mb-1"> {{ item.notes }} </p>
+      <p class="mb-1"> Quantity: {{ item.amount }} Value: {{ item.value }}</p>
+  </div>
+  <div class="card-body">
+
+
+  <div class="end">
+
+  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Assign to Warehouse
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    {% for house in warehouses %}
+    <a class="dropdown-item" href="{{url_for('main_bp.cat_item', item_id=item.id, warehouse_id=house.id)}}">{{house.name}}</a>
+    {% endfor %}
+  </div>
+
+  <button class="btn btn-outline-success" type="button" data-toggle="collapse" area-expanded="false" data-target={{"#log" + loop.index|string}}>Edit Item Info</button>
+  <a href="{{url_for('main_bp.delete', item_id=item.id)}}" class="btn btn-danger" role="button">Delete Item</a>
+
+  <div id={{"log" + loop.index|string}} class="collapse multi-collapse">
+      <div class="card-body">
+        <form action="{{url_for('main_bp.update_item_info', item_id=item.id)}}" method="POST">
+          <small> Make sure to hit submit before navigating to other tabs </small>
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="name" class="form-control" value="{{ item.name|string }}" id="name" name="name" required>
+            <div class="valid-feedback">Valid.</div>
+            <div class="invalid-feedback">Please fill out this field.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="amount">Quantity of Item</label>
+            <input type="number" class="form-control" id="amount" value={{ item.amount }} name="amount">
+          </div>
+
+            <div class="form-group">
+            <label for="value">Value of Item</label>
+            <input type="number" class="form-control" id="value" value={{ item.value }} name="value">
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Item Notes: </label>
+            <textarea class="form-control" id="notes" rows="3" value="{{ item.notes| string }}" name="notes" required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+
+    </div>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="jumbotron">
+    <br>
+    <h1 class="display-4">Items in Your Inventory</h1>
+    <a href="{{url_for('main_bp.create_item')}}" class="btn btn-info" role="button">Add New Item</a>
+    <br>
+    <br>
+    {% for message in get_flashed_messages() %}
+      <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+      </div>
+    {% endfor %}
+    <div class="form-inline">
+        <form action="{{url_for('main_bp.create_warehouse')}}" method="POST">
+          <input type="text" class="form-control" id="name"  name="name" required>
+          <button type="submit" class="btn btn-success">Add Warehouse</button>
+        </form>
+        <button class="btn btn-outline-danger dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Delete Warehouse
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% for house in warehouses %}
+            <a class="dropdown-item" href="{{url_for('main_bp.delete_cat', warehouse_id=house.id)}}">{{house.name}}</a>
+            {% endfor %}
+          </div>
+    </div>
+</div>
+
+
+<ul class="nav nav-tabs">
+  <li class="nav-item"> <a class="nav-link" href="{{url_for('main_bp.items')}}">All&nbsp;</a> </li>
+  {% for house in warehouses %}
+      {% if house.id == curr_house %}
+          <li class="nav-item"> <a class="nav-link active" href="#">{{house.name}}</a> </li>
+      {% else %}
+          <li class="nav-item"> <a class="nav-link" href="{{url_for('main_bp.items_by_warehouse', warehouse_id=house.id)}}">{{house.name}}</a> </li>
+      {% endif %}
+  {% endfor %}
+
+  <div class="btn-toolbar" role="toolbar">
+
+   <div class="btn-group mr-2" role="group"></div>
+  </div>
+</ul>
+<div class="btn-toolbar" role="toolbar"> </div>
+
+<!-- Start of the User's log contents -->
+<div class="card text-left border-dark mb-3">
+{% for item in items|reverse %}
+
+  <div class="card-header position-sticky justify-content-between">
+      <div class="float-right">
+      <small>Category: {{item.warehouse.name}}</small> <br>
+      <small class="text-muted">Created {{ item.date_created.strftime("%m/%d/%Y") }}</small>
+      </div>
+
+      <h5 class="mb-1">{{ item.name }}</h5>
+
+      <p class="mb-1"> {{ item.notes }} </p>
+      <p class="mb-1"> Quantity: {{ item.amount }} Value: {{ item.value }}</p>
+  </div>
+  <div class="card-body">
+
+
+  <div class="end">
+
+  <button class="btn btn-outline-success" type="button" data-toggle="collapse" area-expanded="false" data-target={{"#log" + loop.index|string}}>New Log</button>
+  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Assign to Warehouse
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    {% for house in warehouses %}
+    <a class="dropdown-item" href="{{url_for('main_bp.cat_item', item_id=item.id, warehouse_id=house.id)}}">{{house.name}}</a>
+    {% endfor %}
+  </div>
+
+    </div>
+    </div>
+{% endfor %}
+</div>
+{% endblock %}
